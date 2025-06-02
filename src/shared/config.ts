@@ -1,0 +1,29 @@
+import z from 'zod';
+import fs from 'fs';
+import path from 'path';
+import dotenv from 'dotenv';
+dotenv.config({
+  path: '.env',
+});
+if (!fs.existsSync(path.resolve('.env'))) {
+  console.log('.env file not found, create one');
+  process.exit(1);
+}
+const configSchema = z.object({
+  DATABASE_URL: z.string(),
+  ACCESS_TOKEN_SECRET: z.string(),
+  ACCESS_TOKEN_EXPIRES_IN: z.string(),
+  REFRESH_TOKEN_SECRET: z.string(),
+  REFRESH_TOKEN_EXPIRES_IN: z.string(),
+  SECRET_API_KEY: z.string(),
+});
+
+const configServer = configSchema.safeParse(process.env);
+if (!configServer.success) {
+  console.log('Các giá trị trong env ko hợp lệ');
+  console.error(configServer.error);
+  process.exit(1);
+}
+
+const envConfig = configServer.data;
+export default envConfig;
