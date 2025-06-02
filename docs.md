@@ -48,3 +48,15 @@ khi đó mới chạy được
 # Cache clientRoleId khi đăng ký user
 
 để mỗi lần register => ko phải query lại cái roleId nữa
+
+# Hạn chế try-catch với CatchEverythingFilter
+
+muốn throw ra 1 lỗi chi tiết => try catch
+
+lỗi chung chung => ko cần (lỗi 500)
+
+code file `src\shared\filters\catch-everything.filter.ts`
+
+docs : `https://docs.nestjs.com/exception-filters#catch-everything`
+
+=> ko càn try catch bên controller nữa (nhưng vẫn nên dùng try catch)
