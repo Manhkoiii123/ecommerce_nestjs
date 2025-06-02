@@ -44,3 +44,7 @@ sau đó sửa cái `tsconfig.json`
 ```
 
 khi đó mới chạy được
+
+# Cache clientRoleId khi đăng ký user
+
+để mỗi lần register => ko phải query lại cái roleId nữa
