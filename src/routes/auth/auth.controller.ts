@@ -21,6 +21,7 @@ import {
 } from 'src/routes/auth/auth.dto';
 
 import { AuthService } from 'src/routes/auth/auth.service';
+import { IsPublic } from 'src/shared/decorators/auth.decorator';
 import { IP } from 'src/shared/decorators/ip.decorator';
 import { UserArgent } from 'src/shared/decorators/user-argent.decorator';
 import { MessageResDto } from 'src/shared/dtos/response.dto';
@@ -29,17 +30,21 @@ import { MessageResDto } from 'src/shared/dtos/response.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Post('register')
+  @IsPublic()
   @ZodSerializerDto(RegisterResDTO)
   register(@Body() body: RegisterBodyDTO) {
     return this.authService.register(body);
   }
 
   @Post('send-otp')
+  @IsPublic()
+  @ZodSerializerDto(MessageResDto)
   async sendOtp(@Body() body: SendOTPBodyDTO) {
     return await this.authService.sendOtp(body);
   }
 
   @Post('login')
+  @IsPublic()
   @ZodSerializerDto(LoginResDTO)
   login(
     @Body() body: LoginBodyDTO,
@@ -50,6 +55,7 @@ export class AuthController {
   }
 
   @Post('refresh-token')
+  @IsPublic()
   @HttpCode(HttpStatus.OK)
   @ZodSerializerDto(RefreshTokenResDTO)
   async refreshToken(

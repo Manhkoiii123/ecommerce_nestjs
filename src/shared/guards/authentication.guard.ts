@@ -31,8 +31,8 @@ export class AuthenticationGuard implements CanActivate {
     const authTypeValue = this.reflector.getAllAndOverride<
       AuthTypeDecoratorPayload | undefined
     >(AUTH_TYPE_KEY, [context.getHandler(), context.getClass()]) ?? {
-      authTypes: [AuthType.None],
-      options: { condition: ConditionGuard.Or },
+      authTypes: [AuthType.Bearer], // nếu ko có default là [AuthType.Bearer]
+      options: { condition: ConditionGuard.And },
     };
     // console.log(
     //   '🚀 ~ AuthenticationGuard ~ canActivate ~ authTypeValue:',

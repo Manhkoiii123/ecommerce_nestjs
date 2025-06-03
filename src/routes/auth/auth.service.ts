@@ -113,7 +113,9 @@ export class AuthService {
     if (error) {
       throw new UnprocessableEntityException('Failed to send email');
     }
-    return verificationCode;
+    return {
+      message: 'OTP sent successfully',
+    };
   }
   async login(body: LoginBodyType & { userAgent: string; ip: string }) {
     const user = await this.authRepository.findUniqueUserIncludeRole({

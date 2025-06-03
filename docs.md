@@ -84,3 +84,14 @@ thấy đang khai báo lại email, password ở nhiều chỗ => ko hay
 
 # Phân tích flow OTP Code và khai báo end point
 
+# global guard
+
+nhiều route là public => ko dùng decorator => public
+
+dùng decorator => dùng guard
+
+nếu nhiều route là private thì ngược lại
+
+dùng decorator isPublic => mới public
+
+ko dùng => mặc định dùng bearerToken
