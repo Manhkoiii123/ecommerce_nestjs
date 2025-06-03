@@ -20,6 +20,7 @@ import { TokenService } from 'src/shared/services/token.service';
 import ms from 'ms';
 import envConfig from 'src/shared/config';
 import { TypeOfVerificationCode } from 'src/shared/constants/auth.constants';
+import { EmailService } from 'src/shared/services/email.service';
 @Injectable()
 export class AuthService {
   constructor(
@@ -27,6 +28,7 @@ export class AuthService {
     private readonly roleService: RoleService,
     private readonly authRepository: AuthRepository,
     private readonly sharedUserRepository: SharedUserRepository,
+    private readonly emailService: EmailService,
   ) {}
   async register(body: RegisterBodyType) {
     try {
@@ -91,6 +93,13 @@ export class AuthService {
       expiresAt: addMilliseconds(new Date(), ms(envConfig.OTP_EXPIRES_IN)),
     });
     // send mail
+    const { data, error } = await this.emailService.sendOTP({
+      email: body.email,
+      code,
+    });
+    if (error) {
+      throw new UnprocessableEntityException('Failed to send email');
+    }
     return verificationCode;
   }
   // async login(body: any) {
