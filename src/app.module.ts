@@ -7,7 +7,6 @@ import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import CustomZodValidationPipe from 'src/shared/pipe/custom-zod-validation.pipe';
 import { ZodSerializerInterceptor } from 'nestjs-zod';
 import { HttpExceptionFilter } from 'src/shared/filters/http-exception.filter';
-import { CatchEverythingFilter } from 'src/shared/filters/catch-everything.filter';
 
 @Module({
   imports: [SharedModule, AuthModule],
@@ -23,10 +22,10 @@ import { CatchEverythingFilter } from 'src/shared/filters/catch-everything.filte
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
     },
-    {
-      provide: APP_FILTER,
-      useClass: CatchEverythingFilter,
-    },
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: CatchEverythingFilter,
+    // },
   ],
 })
 export class AppModule {}

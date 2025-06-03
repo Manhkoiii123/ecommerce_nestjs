@@ -19,6 +19,7 @@ import { HashingService } from 'src/shared/services/hashing.service';
 import { TokenService } from 'src/shared/services/token.service';
 import ms from 'ms';
 import envConfig from 'src/shared/config';
+import { TypeOfVerificationCode } from 'src/shared/constants/auth.constants';
 @Injectable()
 export class AuthService {
   constructor(
@@ -29,6 +30,29 @@ export class AuthService {
   ) {}
   async register(body: RegisterBodyType) {
     try {
+      const verifycationCode =
+        await this.authRepository.findUniqueVerificationCode({
+          email: body.email,
+          type: TypeOfVerificationCode.REGISTER,
+          code: body.code,
+        });
+
+      if (!verifycationCode) {
+        throw new UnprocessableEntityException([
+          {
+            message: 'Invalid verification code',
+            path: 'code',
+          },
+        ]);
+      }
+      if (verifycationCode.expiresAt < new Date()) {
+        throw new UnprocessableEntityException([
+          {
+            message: 'Verification code has expired',
+            path: 'code',
+          },
+        ]);
+      }
       const clientRoleId = await this.roleService.getClientRoleId();
       const hashedPassword = await this.hashingService.hash(body.password);
       const user = await this.authRepository.createUser({
@@ -43,7 +67,7 @@ export class AuthService {
       if (isUniqueConstraintError(error)) {
         throw new ConflictException('Email already exists');
       }
-      throw new Error(error);
+      throw error;
     }
   }
   async sendOtp(body: SendOtpBodyType) {
@@ -64,10 +88,7 @@ export class AuthService {
       email: body.email,
       code,
       type: body.type,
-      expiresAt: addMilliseconds(
-        new Date(),
-        1000 * 60 * ms(envConfig.OTP_EXPIRES_IN),
-      ),
+      expiresAt: addMilliseconds(new Date(), ms(envConfig.OTP_EXPIRES_IN)),
     });
     // send mail
     return verificationCode;
