@@ -96,3 +96,16 @@ export const RoleSchema = z.object({
 });
 
 export type RoleType = z.infer<typeof RoleSchema>;
+
+export const RefershTokenSchema = z.object({
+  token: z.string(),
+  userId: z.number(),
+  expiresAt: z.date(),
+  deviceId: z.number(),
+  createdAt: z.date(),
+});
+
+export type RefershTokenType = z.infer<typeof RefershTokenSchema>;
+
+export const LogoutBodySchema = RefreshTokenBodySchema;
+export type LogoutBodyType = z.infer<typeof LogoutBodySchema>;
