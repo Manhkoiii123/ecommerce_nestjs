@@ -105,7 +105,7 @@ export const RefershTokenSchema = z.object({
   createdAt: z.date(),
 });
 
-export type RefershTokenType = z.infer<typeof RefershTokenSchema>;
+export type RefreshTokenType = z.infer<typeof RefershTokenSchema>;
 
 export const LogoutBodySchema = RefreshTokenBodySchema;
 export type LogoutBodyType = z.infer<typeof LogoutBodySchema>;

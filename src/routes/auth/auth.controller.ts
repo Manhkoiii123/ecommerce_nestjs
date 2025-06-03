@@ -12,6 +12,8 @@ import { ZodSerializerDto } from 'nestjs-zod';
 import {
   LoginBodyDTO,
   LoginResDTO,
+  RefreshTokenBodyDTO,
+  RefreshTokenResDTO,
   RegisterBodyDTO,
   RegisterResDTO,
   SendOTPBodyDTO,
@@ -45,11 +47,20 @@ export class AuthController {
     return this.authService.login({ ...body, userAgent, ip });
   }
 
-  // @Post('refresh-token')
-  // @HttpCode(HttpStatus.OK)
-  // async refreshToken(@Body() body: any) {
-  //   return await this.authService.refreshToken(body.refreshToken);
-  // }
+  @Post('refresh-token')
+  @HttpCode(HttpStatus.OK)
+  @ZodSerializerDto(RefreshTokenResDTO)
+  async refreshToken(
+    @Body() body: RefreshTokenBodyDTO,
+    @UserArgent() userAgent: string,
+    @IP() ip: string,
+  ) {
+    return await this.authService.refreshToken({
+      refreshToken: body.refreshToken,
+      userAgent,
+      ip,
+    });
+  }
 
   // @Post('logout')
   // async logout(@Body() body: any) {

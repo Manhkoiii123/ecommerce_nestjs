@@ -8,6 +8,7 @@ import {
 import { addMilliseconds } from 'date-fns';
 import {
   LoginBodyType,
+  RefreshTokenBodyType,
   RegisterBodyType,
   SendOtpBodyType,
 } from 'src/routes/auth/auth.model';
@@ -30,6 +31,7 @@ import {
   AccessTokenPayload,
   AccessTokenPayloadCreate,
 } from 'src/shared/types/jwt.type';
+import { promise } from 'zod';
 @Injectable()
 export class AuthService {
   constructor(
@@ -176,32 +178,55 @@ export class AuthService {
     };
   }
 
-  // async refreshToken(refreshToken: string) {
-  //   try {
-  //     const { userId } =
-  //       await this.tokenService.verifyRefreshToken(refreshToken);
-  //     // kiểm tra có trong db ko
-  //     await this.prismaService.refreshToken.findFirstOrThrow({
-  //       where: {
-  //         token: refreshToken,
-  //       },
-  //     });
-  //     // xóa refresh token
-  //     await this.prismaService.refreshToken.delete({
-  //       where: {
-  //         token: refreshToken,
-  //       },
-  //     });
-  //     // tạo token mới
-  //     return this.generateTokens({ userId });
-  //   } catch (error) {
-  //     // đã ref rồi thì thông báo cho user biết bị đánh căp token
-  //     if (isNotFoundPrismaError(error)) {
-  //       throw new UnauthorizedException('Refresh token is invalid');
-  //     }
-  //     throw new UnauthorizedException(error);
-  //   }
-  // }
+  async refreshToken({
+    refreshToken,
+    userAgent,
+    ip,
+  }: RefreshTokenBodyType & { userAgent: string; ip: string }) {
+    try {
+      const { userId } =
+        await this.tokenService.verifyRefreshToken(refreshToken);
+      // kiểm tra có trong db ko
+      const tokenInDB =
+        await this.authRepository.findUniqueRefreshTokenincludeUserRole({
+          token: refreshToken,
+        });
+      if (!tokenInDB) {
+        throw new UnauthorizedException('Refresh token is invalid');
+      }
+      const {
+        deviceId,
+        user: { roleId, name: roleName },
+      } = tokenInDB;
+      // cập nhật device
+      const $updateDevice = this.authRepository.updateDevice(deviceId, {
+        ip,
+        userAgent,
+      });
+      // xóa refresh token
+      const $deleteRefreshToken =
+        this.authRepository.deleteRefreshToken(refreshToken);
+      // tạo token mới
+      const $tokens = this.generateTokens({
+        userId,
+        roleId,
+        roleName,
+        deviceId,
+      });
+      const [, , tokens] = await Promise.all([
+        $updateDevice,
+        $deleteRefreshToken,
+        $tokens,
+      ]);
+      return tokens;
+    } catch (error) {
+      // đã ref rồi thì thông báo cho user biết bị đánh căp token
+      if (isNotFoundPrismaError(error)) {
+        throw new UnauthorizedException('Refresh token is invalid');
+      }
+      throw new UnauthorizedException(error);
+    }
+  }
 
   // async logout(refreshToken: string) {
   //   try {
