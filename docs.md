@@ -60,3 +60,20 @@ code file `src\shared\filters\catch-everything.filter.ts`
 docs : `https://docs.nestjs.com/exception-filters#catch-everything`
 
 => ko càn try catch bên controller nữa (nhưng vẫn nên dùng try catch)
+
+# Áp dụng Repository Pattern
+
+1 Repository bao gồm
+
+1. **Entity(model)** : đại diện cho bảng trong db
+
+2. **Repository** : đại diện cho các phương thức truy vấn
+3. **Service layer** : gọi Repository để thực hiện các thao tác với db mà ko phụ thuộc vào ORM cụ thể
+
+thường thì sẽ chia dựa như trên
+
+## refactor DTO
+
+thấy đang khai báo lại email, password ở nhiều chỗ => ko hay
+
+=> tạo file `model` của `auth` => dùng file này để validation

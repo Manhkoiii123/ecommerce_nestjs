@@ -4,6 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { RegisterBodyType } from 'src/routes/auth/auth.model';
 import { RoleService } from 'src/routes/auth/role.service';
 import {
   isNotFoundPrismaError,
@@ -21,7 +22,7 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly roleService: RoleService,
   ) {}
-  async register(body: any) {
+  async register(body: RegisterBodyType) {
     try {
       const clientRoleId = await this.roleService.getClientRoleId();
       const hashedPassword = await this.hashingService.hash(body.password);
