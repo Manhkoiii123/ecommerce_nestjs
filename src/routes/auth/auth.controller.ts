@@ -1,13 +1,25 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+} from '@nestjs/common';
+import { Request } from 'express';
 import { ZodSerializerDto } from 'nestjs-zod';
 import {
+  LoginBodyDTO,
+  LoginResDTO,
   RegisterBodyDTO,
   RegisterResDTO,
   SendOTPBodyDTO,
 } from 'src/routes/auth/auth.dto';
 
 import { AuthService } from 'src/routes/auth/auth.service';
+import { IP } from 'src/shared/decorators/ip.decorator';
+import { UserArgent } from 'src/shared/decorators/user-argent.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -23,10 +35,15 @@ export class AuthController {
     return await this.authService.sendOtp(body);
   }
 
-  // @Post('login')
-  // login(@Body() body: any) {
-  //   return this.authService.login(body);
-  // }
+  @Post('login')
+  @ZodSerializerDto(LoginResDTO)
+  login(
+    @Body() body: LoginBodyDTO,
+    @UserArgent() userAgent: string,
+    @IP() ip: string,
+  ) {
+    return this.authService.login({ ...body, userAgent, ip });
+  }
 
   // @Post('refresh-token')
   // @HttpCode(HttpStatus.OK)
