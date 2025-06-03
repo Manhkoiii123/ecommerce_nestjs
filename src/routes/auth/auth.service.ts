@@ -5,24 +5,27 @@ import {
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { RegisterBodyType } from 'src/routes/auth/auth.model';
+import { addMilliseconds } from 'date-fns';
+import { RegisterBodyType, SendOtpBodyType } from 'src/routes/auth/auth.model';
 import { AuthRepository } from 'src/routes/auth/auth.repo';
 import { RoleService } from 'src/routes/auth/role.service';
 import {
+  generateOTP,
   isNotFoundPrismaError,
   isUniqueConstraintError,
 } from 'src/shared/helpers';
+import { SharedUserRepository } from 'src/shared/repositories/shared-user..repo';
 import { HashingService } from 'src/shared/services/hashing.service';
-import { PrismaService } from 'src/shared/services/prisma.service';
 import { TokenService } from 'src/shared/services/token.service';
-
+import ms from 'ms';
+import envConfig from 'src/shared/config';
 @Injectable()
 export class AuthService {
   constructor(
     private readonly hashingService: HashingService,
-    private readonly tokenService: TokenService,
     private readonly roleService: RoleService,
     private readonly authRepository: AuthRepository,
+    private readonly sharedUserRepository: SharedUserRepository,
   ) {}
   async register(body: RegisterBodyType) {
     try {
@@ -42,6 +45,32 @@ export class AuthService {
       }
       throw new Error(error);
     }
+  }
+  async sendOtp(body: SendOtpBodyType) {
+    // tìm email đã tồn tại hay chưa => chưa thì mới tạo otp
+    const user = await this.sharedUserRepository.findUnique({
+      email: body.email,
+    });
+    if (user) {
+      throw new UnprocessableEntityException([
+        {
+          errors: 'Email already exists',
+          path: 'email',
+        },
+      ]);
+    }
+    const code = generateOTP();
+    const verificationCode = await this.authRepository.createVerificationCode({
+      email: body.email,
+      code,
+      type: body.type,
+      expiresAt: addMilliseconds(
+        new Date(),
+        1000 * 60 * ms(envConfig.OTP_EXPIRES_IN),
+      ),
+    });
+    // send mail
+    return verificationCode;
   }
   // async login(body: any) {
   //   const user = await this.prismaService.user.findUnique({

@@ -81,3 +81,6 @@ thấy đang khai báo lại email, password ở nhiều chỗ => ko hay
 ## refactor service
 
 => file `auth.repo.ts` => refactor file này
+
+# Phân tích flow OTP Code và khai báo end point
+

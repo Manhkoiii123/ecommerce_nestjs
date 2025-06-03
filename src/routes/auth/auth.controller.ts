@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ZodSerializerDto } from 'nestjs-zod';
-import { RegisterBodyDTO, RegisterResDTO } from 'src/routes/auth/auth.dto';
+import {
+  RegisterBodyDTO,
+  RegisterResDTO,
+  SendOTPBodyDTO,
+} from 'src/routes/auth/auth.dto';
 
 import { AuthService } from 'src/routes/auth/auth.service';
 
@@ -12,6 +16,11 @@ export class AuthController {
   @ZodSerializerDto(RegisterResDTO)
   register(@Body() body: RegisterBodyDTO) {
     return this.authService.register(body);
+  }
+
+  @Post('send-otp')
+  async sendOtp(@Body() body: SendOTPBodyDTO) {
+    return await this.authService.sendOtp(body);
   }
 
   // @Post('login')
