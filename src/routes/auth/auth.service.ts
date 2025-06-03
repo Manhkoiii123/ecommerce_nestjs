@@ -228,22 +228,24 @@ export class AuthService {
     }
   }
 
-  // async logout(refreshToken: string) {
-  //   try {
-  //     await this.tokenService.verifyRefreshToken(refreshToken);
-  //     // xóa refresh token
-  //     await this.prismaService.refreshToken.delete({
-  //       where: {
-  //         token: refreshToken,
-  //       },
-  //     });
-
-  //     // tạo token mới
-  //     return {
-  //       message: 'Logout successfully',
-  //     };
-  //   } catch (error) {
-  //     throw new UnauthorizedException(error);
-  //   }
-  // }
+  async logout(refreshToken: string) {
+    try {
+      await this.tokenService.verifyRefreshToken(refreshToken);
+      // xóa refresh token
+      const deleteRefreshToken =
+        await this.authRepository.deleteRefreshToken(refreshToken);
+      // cập nhật device đã logout
+      await this.authRepository.updateDevice(deleteRefreshToken.deviceId, {
+        isActive: false,
+      });
+      return {
+        message: 'Logout successfully',
+      };
+    } catch (error) {
+      if (isNotFoundPrismaError(error)) {
+        throw new UnauthorizedException('Refresh token is invalid');
+      }
+      throw new UnauthorizedException(error);
+    }
+  }
 }

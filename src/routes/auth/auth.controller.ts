@@ -12,6 +12,7 @@ import { ZodSerializerDto } from 'nestjs-zod';
 import {
   LoginBodyDTO,
   LoginResDTO,
+  LogoutBodyDTO,
   RefreshTokenBodyDTO,
   RefreshTokenResDTO,
   RegisterBodyDTO,
@@ -22,6 +23,7 @@ import {
 import { AuthService } from 'src/routes/auth/auth.service';
 import { IP } from 'src/shared/decorators/ip.decorator';
 import { UserArgent } from 'src/shared/decorators/user-argent.decorator';
+import { MessageResDto } from 'src/shared/dtos/response.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -62,8 +64,9 @@ export class AuthController {
     });
   }
 
-  // @Post('logout')
-  // async logout(@Body() body: any) {
-  //   return await this.authService.logout(body.refreshToken);
-  // }
+  @Post('logout')
+  @ZodSerializerDto(MessageResDto)
+  async logout(@Body() body: LogoutBodyDTO) {
+    return await this.authService.logout(body.refreshToken);
+  }
 }
