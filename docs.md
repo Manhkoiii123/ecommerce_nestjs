@@ -77,3 +77,7 @@ thường thì sẽ chia dựa như trên
 thấy đang khai báo lại email, password ở nhiều chỗ => ko hay
 
 => tạo file `model` của `auth` => dùng file này để validation
+
+## refactor service
+
+=> file `auth.repo.ts` => refactor file này
