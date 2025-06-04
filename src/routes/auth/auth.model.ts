@@ -109,3 +109,17 @@ export type RefreshTokenType = z.infer<typeof RefershTokenSchema>;
 
 export const LogoutBodySchema = RefreshTokenBodySchema;
 export type LogoutBodyType = z.infer<typeof LogoutBodySchema>;
+
+export const GoogleStateSchema = DeviceSchema.pick({
+  userAgent: true,
+  ip: true,
+});
+export type GoogleStateType = z.infer<typeof GoogleStateSchema>;
+
+export const GetOAuthAuthorizationUrlResSchema = z.object({
+  url: z.string(),
+});
+
+export type GetOAuthAuthorizationUrlResType = z.infer<
+  typeof GetOAuthAuthorizationUrlResSchema
+>;
