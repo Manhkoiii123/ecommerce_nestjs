@@ -6,9 +6,11 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   Req,
+  Res,
 } from '@nestjs/common';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { ZodSerializerDto } from 'nestjs-zod';
 import {
   GetOAuthAuthorizationUrlResDTO,
@@ -24,6 +26,7 @@ import {
 
 import { AuthService } from 'src/routes/auth/auth.service';
 import { GoogleService } from 'src/routes/auth/google.service';
+import envConfig from 'src/shared/config';
 import { IsPublic } from 'src/shared/decorators/auth.decorator';
 import { IP } from 'src/shared/decorators/ip.decorator';
 import { UserArgent } from 'src/shared/decorators/user-argent.decorator';
@@ -87,5 +90,24 @@ export class AuthController {
   @ZodSerializerDto(GetOAuthAuthorizationUrlResDTO)
   getAuthorizationUrl(@UserArgent() userAgent: string, @IP() ip: string) {
     return this.googleService.getAuthorizationUrl({ userAgent, ip });
+  }
+  @Get('google/callback')
+  @IsPublic()
+  async googleCallback(
+    @Query('code') code: string,
+    @Query('state') state: string,
+    @Res() res: Response,
+  ) {
+    try {
+      const data = await this.googleService.googleCallback({ code, state });
+      return res.redirect(
+        `${envConfig.GOOGLE_CLIENT_REDIRECT_URI}?accessToken=${data.accessToken}&refreshToken=${data.refreshToken}`,
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : error;
+      return res.redirect(
+        `${envConfig.GOOGLE_CLIENT_REDIRECT_URI}?error=${message}`,
+      );
+    }
   }
 }
