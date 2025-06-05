@@ -40,6 +40,8 @@ import {
   EmailAlreadyExistsException,
   EmailNotFoundException,
   InvalidOTPException,
+  InvalidTOTPAndCodeException,
+  InvalidTOTPCodeException,
   OTPExpiredException,
   TOTPAlreadyEnabledException,
 } from 'src/routes/auth/error.model';
@@ -162,6 +164,31 @@ export class AuthService {
           errors: 'Invalid password',
         },
       ]);
+    }
+    // kiểm tra 2fa
+    // nếu ng dùng đó đã bật 2fa thì phải có 2fa mới login được
+    if (user.totpSecret) {
+      if (!body.totpCode && !body.code) {
+        throw InvalidTOTPAndCodeException;
+      }
+
+      // kiểm tra totp có hợp lệ ko
+      if (body.totpCode) {
+        const isTotpValid = this.twoFactorService.verifyTOTP({
+          email: user.email,
+          token: body.totpCode,
+          secret: user.totpSecret,
+        });
+        if (!isTotpValid) {
+          throw InvalidTOTPCodeException;
+        }
+      } else if (body.code) {
+        await this.validateVerificationCode({
+          email: user.email,
+          code: body.code,
+          type: TypeOfVerificationCode.LOGIN,
+        });
+      }
     }
     const device = await this.authRepository.createDevice({
       userId: user.id,
