@@ -123,3 +123,23 @@ export const GetOAuthAuthorizationUrlResSchema = z.object({
 export type GetOAuthAuthorizationUrlResType = z.infer<
   typeof GetOAuthAuthorizationUrlResSchema
 >;
+
+export const ForgotPasswordBodySchema = z
+  .object({
+    email: z.string().email(),
+    code: z.string().length(6),
+    newPassword: z.string().min(6).max(100),
+    confirmNewPassword: z.string().min(6).max(100),
+  })
+  .strict()
+  .superRefine(({ confirmNewPassword, newPassword }, ctx) => {
+    if (confirmNewPassword !== newPassword) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'The passwords did not match',
+        path: ['confirmNewPassword'],
+      });
+    }
+  });
+
+export type ForgotPasswordBodyType = z.infer<typeof ForgotPasswordBodySchema>;

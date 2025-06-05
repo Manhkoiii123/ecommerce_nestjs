@@ -13,6 +13,7 @@ import {
 import { Request, Response } from 'express';
 import { ZodSerializerDto } from 'nestjs-zod';
 import {
+  ForgotPasswordBodyDTO,
   GetOAuthAuthorizationUrlResDTO,
   LoginBodyDTO,
   LoginResDTO,
@@ -109,5 +110,12 @@ export class AuthController {
         `${envConfig.GOOGLE_CLIENT_REDIRECT_URI}?error=${message}`,
       );
     }
+  }
+
+  @Post('forgot-password')
+  @IsPublic()
+  @ZodSerializerDto(MessageResDto)
+  async forgotPassword(@Body() body: ForgotPasswordBodyDTO) {
+    return await this.authService.forgotPassword(body);
   }
 }

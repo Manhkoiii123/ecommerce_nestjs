@@ -95,3 +95,5 @@ nếu nhiều route là private thì ngược lại
 dùng decorator isPublic => mới public
 
 ko dùng => mặc định dùng bearerToken
+
+# Chức năng quên mật khẩu

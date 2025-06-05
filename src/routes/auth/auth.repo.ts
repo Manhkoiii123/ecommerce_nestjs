@@ -114,4 +114,25 @@ export class AuthRepository {
   async deleteRefreshToken(token: string) {
     return await this.prismaService.refreshToken.delete({ where: { token } });
   }
+
+  async updateUser(
+    where: { id: number } | { email: string },
+    data: Partial<Omit<UserType, 'id' | 'roleId'>>,
+  ): Promise<UserType> {
+    return this.prismaService.user.update({ where, data });
+  }
+  deleteVerificationCode(
+    uniqueValue:
+      | {
+          email: string;
+        }
+      | { id: number }
+      | {
+          email: string;
+          code: string;
+          type: TypeOfVerificationCodeType;
+        },
+  ): Promise<VerificationCodeType | null> {
+    return this.prismaService.verificationCode.delete({ where: uniqueValue });
+  }
 }
