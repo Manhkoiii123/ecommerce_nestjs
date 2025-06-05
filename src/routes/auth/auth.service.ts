@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { addMilliseconds } from 'date-fns';
 import {
+  DisableTwoFactorBodyType,
   ForgotPasswordBodyType,
   LoginBodyType,
   RefreshTokenBodyType,
@@ -44,6 +45,7 @@ import {
   InvalidTOTPCodeException,
   OTPExpiredException,
   TOTPAlreadyEnabledException,
+  TOTPNotEnabledException,
 } from 'src/routes/auth/error.model';
 import { TwoFactorAuthService } from 'src/shared/services/2fa.service';
 @Injectable()
@@ -360,6 +362,42 @@ export class AuthService {
     return {
       secret,
       uri,
+    };
+  }
+
+  async disableTwofactor(data: DisableTwoFactorBodyType & { userId: number }) {
+    const { userId, code, totpCode } = data;
+    // lấy thông tin user kiểm tra xem  ật 2fa chưa
+    const user = await this.sharedUserRepository.findUnique({ id: userId });
+    if (!user) {
+      throw EmailNotFoundException;
+    }
+    if (!user.totpSecret) {
+      throw TOTPNotEnabledException;
+    }
+    // kiểm tra otp
+    if (totpCode) {
+      const isTotpValid = this.twoFactorService.verifyTOTP({
+        email: user.email,
+        token: totpCode,
+        secret: user.totpSecret,
+      });
+      if (!isTotpValid) {
+        throw InvalidTOTPCodeException;
+      }
+    } else if (code) {
+      // otp email
+      await this.validateVerificationCode({
+        email: user.email,
+        code,
+        type: TypeOfVerificationCode.DISABLE_2FA,
+      });
+    }
+
+    // xóa sercet
+    await this.authRepository.updateUser({ id: userId }, { totpSecret: null });
+    return {
+      message: 'Disable 2fa successfully',
     };
   }
 }

@@ -14,6 +14,7 @@ import {
 import { Request, Response } from 'express';
 import { ZodSerializerDto } from 'nestjs-zod';
 import {
+  DisableTwoFactorBodyDTO,
   ForgotPasswordBodyDTO,
   GetOAuthAuthorizationUrlResDTO,
   LoginBodyDTO,
@@ -134,5 +135,14 @@ export class AuthController {
   @UseGuards(AccessTokenGuard)
   async setUpTwofactor(@ActiveUser('userId') userId: number) {
     return await this.authService.setUpTwofactor(userId);
+  }
+  @Post('2fa/disable')
+  @ZodSerializerDto(MessageResDto)
+  @UseGuards(AccessTokenGuard)
+  async disableTwofactor(
+    @Body() body: DisableTwoFactorBodyDTO,
+    @ActiveUser('userId') userId: number,
+  ) {
+    return await this.authService.disableTwofactor({ ...body, userId });
   }
 }
