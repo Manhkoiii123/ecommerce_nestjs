@@ -177,6 +177,6 @@ export type DisableTwoFactorBodyType = z.infer<
 
 export const TwoFactorSetupResSchema = z.object({
   secret: z.string(),
-  url: z.string(),
+  uri: z.string(),
 });
 export type TwoFactorSetupResType = z.infer<typeof TwoFactorSetupResSchema>;

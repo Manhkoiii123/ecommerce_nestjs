@@ -41,7 +41,9 @@ import {
   EmailNotFoundException,
   InvalidOTPException,
   OTPExpiredException,
+  TOTPAlreadyEnabledException,
 } from 'src/routes/auth/error.model';
+import { TwoFactorAuthService } from 'src/shared/services/2fa.service';
 @Injectable()
 export class AuthService {
   constructor(
@@ -51,7 +53,7 @@ export class AuthService {
     private readonly sharedUserRepository: SharedUserRepository,
     private readonly emailService: EmailService,
     private readonly tokenService: TokenService,
-    private readonly prismaService: PrismaService,
+    private readonly twoFactorService: TwoFactorAuthService,
   ) {}
 
   async validateVerificationCode({
@@ -306,6 +308,31 @@ export class AuthService {
     });
     return {
       message: 'Reset password successfully',
+    };
+  }
+
+  async setUpTwofactor(userId: number) {
+    // lấy thông tin user, kiểm tra có tồn tại hay ko, và xem đã bật 2fa chưa
+    const user = await this.sharedUserRepository.findUnique({ id: userId });
+    if (!user) {
+      throw EmailNotFoundException;
+    }
+    if (user.totpSecret) {
+      throw TOTPAlreadyEnabledException;
+    }
+    // tạo sercet và uri
+    const { secret, uri } = this.twoFactorService.generateTOTPSecret(
+      user.email,
+    );
+    // cập nhật sercet vào user trong db
+    await this.authRepository.updateUser(
+      { id: userId },
+      { totpSecret: secret },
+    );
+    // trả về sercet
+    return {
+      secret,
+      uri,
     };
   }
 }
