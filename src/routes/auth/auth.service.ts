@@ -32,6 +32,7 @@ import {
   AccessTokenPayloadCreate,
 } from 'src/shared/types/jwt.type';
 import { promise } from 'zod';
+import { InvalidOTPException } from 'src/routes/auth/error.model';
 @Injectable()
 export class AuthService {
   constructor(
@@ -53,12 +54,7 @@ export class AuthService {
         });
 
       if (!verifycationCode) {
-        throw new UnprocessableEntityException([
-          {
-            message: 'Invalid verification code',
-            path: 'code',
-          },
-        ]);
+        throw InvalidOTPException;
       }
       if (verifycationCode.expiresAt < new Date()) {
         throw new UnprocessableEntityException([
