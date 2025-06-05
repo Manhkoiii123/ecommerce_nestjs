@@ -45,7 +45,11 @@ export class AuthRepository {
   ): Promise<VerificationCodeType> {
     return await this.prismaService.verificationCode.upsert({
       where: {
-        email: payload.email,
+        email_type_code: {
+          email: payload.email,
+          type: payload.type,
+          code: payload.code,
+        },
       },
       update: {
         code: payload.code,
@@ -56,14 +60,13 @@ export class AuthRepository {
   }
   async findUniqueVerificationCode(
     uniqueValue:
-      | {
-          email: string;
-        }
       | { id: number }
       | {
-          email: string;
-          code: string;
-          type: TypeOfVerificationCodeType;
+          email_type_code: {
+            email: string;
+            code: string;
+            type: TypeOfVerificationCodeType;
+          };
         },
   ): Promise<VerificationCodeType | null> {
     return await this.prismaService.verificationCode.findUnique({
@@ -122,15 +125,15 @@ export class AuthRepository {
     return this.prismaService.user.update({ where, data });
   }
   deleteVerificationCode(
+    // cái unique chỉ được dùng khi bên schema có đánh dấu nó là unique
     uniqueValue:
-      | {
-          email: string;
-        }
       | { id: number }
       | {
-          email: string;
-          code: string;
-          type: TypeOfVerificationCodeType;
+          email_type_code: {
+            email: string;
+            code: string;
+            type: TypeOfVerificationCodeType;
+          };
         },
   ): Promise<VerificationCodeType | null> {
     return this.prismaService.verificationCode.delete({ where: uniqueValue });

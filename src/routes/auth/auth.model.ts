@@ -32,7 +32,12 @@ export const RegisterResSchema = UserSchema.omit({
 export const LoginBodySchema = UserSchema.pick({
   email: true,
   password: true,
-}).strict();
+})
+  .extend({
+    totpCode: z.string().length(6).optional(), // 2fa
+    code: z.string().length(6).optional(), // otp code
+  })
+  .strict();
 export type LoginBodyType = z.infer<typeof LoginBodySchema>;
 
 export const LoginResSchema = z.object({
@@ -60,6 +65,8 @@ export const VerificationCode = z.object({
   type: z.enum([
     TypeOfVerificationCode.FORGOT_PASSWORD,
     TypeOfVerificationCode.REGISTER,
+    TypeOfVerificationCode.LOGIN,
+    TypeOfVerificationCode.DISABLE_2FA,
   ]),
   expiresAt: z.date(),
   createdAt: z.date(),
@@ -143,3 +150,33 @@ export const ForgotPasswordBodySchema = z
   });
 
 export type ForgotPasswordBodyType = z.infer<typeof ForgotPasswordBodySchema>;
+
+export const DisableTwoFactorBodySchema = z
+  .object({
+    totpCode: z.string().length(6).optional(),
+    code: z.string().length(6).optional(),
+  })
+  .superRefine(({ totpCode, code }, ctx) => {
+    if ((totpCode !== undefined) === (code !== undefined)) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Cannot use both totpCode and code',
+        path: ['totpCode'],
+      });
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Cannot use both totpCode and code',
+        path: ['code'],
+      });
+    }
+  });
+
+export type DisableTwoFactorBodyType = z.infer<
+  typeof DisableTwoFactorBodySchema
+>;
+
+export const TwoFactorSetupResSchema = z.object({
+  secret: z.string(),
+  url: z.string(),
+});
+export type TwoFactorSetupResType = z.infer<typeof TwoFactorSetupResSchema>;

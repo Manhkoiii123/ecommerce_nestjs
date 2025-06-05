@@ -65,9 +65,11 @@ export class AuthService {
   }) {
     const verifycationCode =
       await this.authRepository.findUniqueVerificationCode({
-        email: email,
-        type: type,
-        code: code,
+        email_type_code: {
+          email: email,
+          type: type,
+          code: code,
+        },
       });
 
     if (!verifycationCode) {
@@ -95,9 +97,11 @@ export class AuthService {
         roleId: clientRoleId,
       });
       await this.authRepository.deleteVerificationCode({
-        email: body.email,
-        type: TypeOfVerificationCode.REGISTER,
-        code: body.code,
+        email_type_code: {
+          email: body.email,
+          type: TypeOfVerificationCode.REGISTER,
+          code: body.code,
+        },
       });
 
       return user;
@@ -294,9 +298,11 @@ export class AuthService {
       },
     );
     await this.authRepository.deleteVerificationCode({
-      email,
-      code,
-      type: TypeOfVerificationCode.FORGOT_PASSWORD,
+      email_type_code: {
+        email,
+        code,
+        type: TypeOfVerificationCode.FORGOT_PASSWORD,
+      },
     });
     return {
       message: 'Reset password successfully',
