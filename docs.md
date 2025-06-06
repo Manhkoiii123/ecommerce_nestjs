@@ -118,3 +118,38 @@ ko dùng => mặc định dùng bearerToken
 - Xảy ra ở API Login và API vô hiệu hóa 2FA
 
 Với Flow này, chúng ta sẽ đảm bảo việc có 1 giải pháp backup trong trường hợp người dùng đánh mất điện thoại hoặc không thể truy cập vào mã 2FA
+
+# Chuyển đổi prisma db push sang prisma migrate
+
+## 1. Đồng bộ `Schema.prisma` với DB
+
+nếu ch có file `schema.prisma` => tạo 1 file cơ bản kết nỗi db hiện tại và chạy câu lệnh sau để đọc db và cập nhật file `schema.prisma`
+
+```bash
+npx prisma db pull
+```
+
+đã có sẵn rồi do đang dùng cách `npx prisma db push`
+
+thì chạy lại câu lệnh `npx prisma db push` 1 lần nữa để chắc chắn đồng bộ với db hiện tại
+
+## 2. tạo baseline migration
+
+1. tạo thư mục `prisma/migrations/0_init`
+2. dựa vào file `schema.prisma` để tạo file migration bằng câu lệnh
+
+```bash
+npx prisma migrate diff \
+--from-empty \
+--to-schema-datamodel prisma/schema.prisma \
+--script > prisma/migrations/0_init/migration.sql
+```
+
+3. đánh dấu file `0_init/migration.sql` là đã được áp dụng. câu lệnh dưới đây ko thay đổi cấu trúc db, nó chỉ update data trong `_prisma_migrations`
+
+```bash
+npx prisma migrate resolve --applied 0_init
+```
+
+4. từ đó có thể chuyển từ `npx prisma db push` sang `npx prisma migrate `.
+   commit lại file `schema.prisma` và đưa lên git
