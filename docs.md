@@ -153,3 +153,25 @@ npx prisma migrate resolve --applied 0_init
 
 4. từ đó có thể chuyển từ `npx prisma db push` sang `npx prisma migrate `.
    commit lại file `schema.prisma` và đưa lên git
+
+# Thêm chức năng Partial Unique Index bằng prisma migrate
+
+`@@unique([path, method],{where:{deletedAt:null}})` khi deletedAt là null thì mới được phép unique => ko hỗ trợ partial unique
+
+## 3. Thêm một tính năng mà Prisma Schema không hỗ trợ
+
+Để làm thì schema của các bạn phải sync với database hiện tại và dự án phải sử dụng `prisma migrate` thay vì `prisma db push`
+
+Ví dụ mình muốn thêm Partial Unique Indexes vào một table trên PostgreSQL. Prisma Schema không hỗ trợ tính năng này, nhưng chúng ta có thể thêm bằng cách sửa file migration.
+
+1. Tạo một file migration `npx prisma migrate dev --create-only`. Câu lệnh này yêu cầu Prisma kiểm tra file `schema.prisma` với trạng thái database để tạo ra file migration mới. `--create-only` Tùy chọn này giới hạn hành động của lệnh chỉ ở bước tạo file migration, mà không thực hiện bước áp dụng (apply) migration vào cơ sở dữ liệu. Ở bước này thì nó sẽ tạo ra file sql rỗng
+
+2. Paste nội dung sau vào file migration mới tạo
+
+   ```sql
+   CREATE UNIQUE INDEX permission_path_method_unique
+   ON "Permission" (path, method)
+   WHERE "deletedAt" IS NULL;
+   ```
+
+3. Áp dụng migration bằng cách chạy lệnh `npx prisma migrate dev`
