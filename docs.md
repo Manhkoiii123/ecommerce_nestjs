@@ -175,3 +175,7 @@ Ví dụ mình muốn thêm Partial Unique Indexes vào một table trên Postgr
    ```
 
 3. Áp dụng migration bằng cách chạy lệnh `npx prisma migrate dev`
+
+# down migration
+
+=> back lại `prisma.schema` => `npx prisma migrate dev --create-only` => `prisma migrate dev`
