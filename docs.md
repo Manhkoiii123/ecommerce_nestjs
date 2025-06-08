@@ -179,3 +179,13 @@ Ví dụ mình muốn thêm Partial Unique Indexes vào một table trên Postgr
 # down migration
 
 => back lại `prisma.schema` => `npx prisma migrate dev --create-only` => `prisma migrate dev`
+
+## 🔄 Flow middleware
+
+### Mỗi request đi qua, mình sẽ:
+
+1. Kiểm tra xem AT có hợp lệ không, còn hạn hay không. Từ đó lấy ra `userId` và `roleId`
+2. Dựa `roleId` vào để query database lấy danh sách permission của role đó
+3. Kiểm tra danh sách permission của role đó có quyền truy cập endpoint đó không
+
+### Mình có thể thêm sau bước 2 là: Dựa vào `deviceId` query `Device` để kiểm tra xem thiết bị đó có `isActive=true` không từ đó quyết định cho phép hoặc không cho phép request đi qua. Lúc này chúng ta có thể làm được chức năng đăng xuất thiết bị ngay lập tức. Nhưng điểm dở là phải tốn 1 query (hoặc thêm 1 vài lần join table), điều này làm tăng latency và tăng gánh nặng lên database, nhất là khi có nhiều người request.
