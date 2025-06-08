@@ -1,29 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import {
-  CreatePermissionBodyType,
-  GetPermissionsQueryType,
-  GetPermissionsResType,
-  PermissionType,
-  UpdatePermissionBodyType,
-} from 'src/routes/permission/permission.model';
+  CreateRoleBodyType,
+  GetRolesQueryType,
+  GetRolesResType,
+  RoleType,
+  RoleWithPermissionsType,
+  UpdateRoleBodyType,
+} from 'src/routes/role/role.model';
 import { PrismaService } from 'src/shared/services/prisma.service';
 
 @Injectable()
-export class PermissionRepo {
+export class RoleRepo {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async list(
-    pagination: GetPermissionsQueryType,
-  ): Promise<GetPermissionsResType> {
+  async list(pagination: GetRolesQueryType): Promise<GetRolesResType> {
     const skip = (pagination.page - 1) * pagination.limit;
     const take = pagination.limit;
     const [totalItems, data] = await Promise.all([
-      this.prismaService.permission.count({
+      this.prismaService.role.count({
         where: {
           deletedAt: null,
         },
       }),
-      this.prismaService.permission.findMany({
+      this.prismaService.role.findMany({
         where: {
           deletedAt: null,
         },
@@ -39,11 +38,15 @@ export class PermissionRepo {
       totalPages: Math.ceil(totalItems / pagination.limit),
     };
   }
-  async findById(id: number): Promise<PermissionType | null> {
-    return this.prismaService.permission.findUnique({
+
+  async findById(id: number): Promise<RoleWithPermissionsType | null> {
+    return this.prismaService.role.findUnique({
       where: {
         id,
         deletedAt: null,
+      },
+      include: {
+        permissions: true,
       },
     });
   }
@@ -53,50 +56,65 @@ export class PermissionRepo {
     data,
   }: {
     createdById: number | null;
-    data: CreatePermissionBodyType;
-  }): Promise<PermissionType> {
-    return this.prismaService.permission.create({
+    data: CreateRoleBodyType;
+  }): Promise<RoleType> {
+    return this.prismaService.role.create({
       data: {
         ...data,
-        description: '',
+        permissions: {
+          connect: [],
+        },
         createdById,
       },
     });
   }
+
   update({
     id,
     data,
     updatedById,
   }: {
     id: number;
-    data: UpdatePermissionBodyType;
+    data: UpdateRoleBodyType;
     updatedById: number;
-  }): Promise<PermissionType> {
-    return this.prismaService.permission.update({
+  }): Promise<RoleType> {
+    return this.prismaService.role.update({
       where: {
         id,
         deletedAt: null,
       },
       data: {
-        ...data,
+        name: data.name,
+        description: data.description,
+        isActive: data.isActive,
+        permissions: {
+          set: data.permissionIds.map((id) => ({ id })),
+        },
         updatedById,
+      },
+      include: {
+        permissions: true,
       },
     });
   }
-  delete(id: number, isHard?: boolean): Promise<PermissionType> {
+  delete(
+    { id, deletedById }: { id: number; deletedById: number },
+    isHard?: boolean,
+  ): Promise<RoleType> {
     return isHard
-      ? this.prismaService.permission.delete({
+      ? this.prismaService.role.delete({
           where: {
             id,
           },
         })
-      : this.prismaService.permission.update({
+      : this.prismaService.role.update({
           where: {
             id,
             deletedAt: null,
           },
           data: {
             deletedAt: new Date(),
+            deletedById,
           },
         });
   }

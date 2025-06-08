@@ -169,7 +169,7 @@ model Role {
   name        String      @db.VarChar(500)
   description String  @default("")
   isActive    Boolean      @default(true)
-  permissions Permission[]
+  permissions Permission[] 
   users       User[]
 
   createdById Int?

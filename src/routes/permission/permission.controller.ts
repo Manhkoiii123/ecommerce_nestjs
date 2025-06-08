@@ -68,10 +68,7 @@ export class PermissionController {
   @Delete(':permissionId')
   @ZodSerializerDto(MessageResDto)
   @UseGuards(AccessTokenGuard)
-  delete(
-    @Param() params: GetPermissionParamsDTO,
-    @ActiveUser('userId') userId: number,
-  ) {
-    return this.permissionService.delete(params.permissionId, userId);
+  delete(@Param() params: GetPermissionParamsDTO) {
+    return this.permissionService.delete(params.permissionId);
   }
 }

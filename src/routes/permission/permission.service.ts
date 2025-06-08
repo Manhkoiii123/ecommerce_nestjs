@@ -64,7 +64,7 @@ export class PermissionService {
       throw error;
     }
   }
-  async delete(id: number, deletedById?: number) {
+  async delete(id: number) {
     try {
       await this.permissionRepo.delete(id);
       return {
