@@ -46,7 +46,11 @@ export class RoleRepo {
         deletedAt: null,
       },
       include: {
-        permissions: true,
+        permissions: {
+          where: {
+            deletedAt: null,
+          },
+        },
       },
     });
   }
@@ -69,7 +73,7 @@ export class RoleRepo {
     });
   }
 
-  update({
+  async update({
     id,
     data,
     updatedById,
@@ -78,6 +82,24 @@ export class RoleRepo {
     data: UpdateRoleBodyType;
     updatedById: number;
   }): Promise<RoleType> {
+    // kiểm tra permissionIds nếu có cái nào ko tồn tại hoặc bị xóa => lỗi
+    if (data.permissionIds.length > 0) {
+      const permissions = await this.prismaService.permission.findMany({
+        where: {
+          id: {
+            in: data.permissionIds,
+          },
+          deletedAt: null,
+        },
+      });
+      const deletedPermission = permissions.filter((p) => p.deletedAt);
+      if (deletedPermission.length > 0) {
+        const deletedPermissionIds = deletedPermission
+          .map((p) => p.id)
+          .join(', ');
+        throw new Error(`Permission ${deletedPermissionIds} not found`);
+      }
+    }
     return this.prismaService.role.update({
       where: {
         id,
@@ -93,7 +115,11 @@ export class RoleRepo {
         updatedById,
       },
       include: {
-        permissions: true,
+        permissions: {
+          where: {
+            deletedAt: null,
+          },
+        },
       },
     });
   }
