@@ -1,4 +1,7 @@
-import { UnprocessableEntityException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 
 export const RoleAlreadyExistsException = new UnprocessableEntityException([
   {
@@ -10,3 +13,6 @@ export const RoleAlreadyExistsException = new UnprocessableEntityException([
     field: 'method',
   },
 ]);
+export const ProhibitedDeletedRoleException = new ForbiddenException(
+  'Error.ProhibitedDeletedRoleException',
+);
