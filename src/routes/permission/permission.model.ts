@@ -6,6 +6,7 @@ export const PermissionSchema = z.object({
   name: z.string(),
   description: z.string(),
   path: z.string().max(1000),
+  module: z.string().max(1000),
   method: z.enum([
     HTTPMethod.DELETE,
     HTTPMethod.GET,
@@ -51,6 +52,7 @@ export const CreatePermissionBodySchema = PermissionSchema.pick({
   name: true,
   path: true,
   method: true,
+  module: true,
 }).strict();
 
 export const UpdatePermissionBodySchema = CreatePermissionBodySchema;
