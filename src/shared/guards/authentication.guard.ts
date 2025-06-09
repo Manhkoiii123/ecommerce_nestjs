@@ -4,6 +4,7 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
+  HttpException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthType, ConditionGuard } from 'src/shared/constants/auth.constants';
@@ -42,34 +43,40 @@ export class AuthenticationGuard implements CanActivate {
     const guards = authTypeValue.authTypes.map((type) => {
       return this.authTypeGuardMap[type];
     });
+    return authTypeValue.options.condition === ConditionGuard.And
+      ? this.handleAndCondition(guards, context)
+      : this.handleOrCondition(guards, context);
+  }
 
-    let err = new UnauthorizedException('Invalid authentication guard');
-    if (authTypeValue.options.condition === ConditionGuard.Or) {
-      for (const instance of guards) {
-        const canActivate = await Promise.resolve(
-          instance.canActivate(context),
-        ).catch((error) => {
-          err = error;
-          return false;
-        });
-        if (canActivate) {
-          return true;
-        }
+  private async handleOrCondition(
+    guards: CanActivate[],
+    context: ExecutionContext,
+  ) {
+    let lastError: any = null;
+    for (const guard of guards) {
+      try {
+        if (await guard.canActivate(context)) return true;
+      } catch (error) {
+        lastError = error;
       }
-      throw new UnauthorizedException('Invalid authentication guard');
-    } else {
-      for (const instance of guards) {
-        const canActivate = await Promise.resolve(
-          instance.canActivate(context),
-        ).catch((error) => {
-          err = error;
-          return false;
-        });
-        if (!canActivate) {
-          throw new UnauthorizedException('Invalid authentication guard');
-        }
-      }
-      return true;
     }
+    if (lastError instanceof HttpException) throw lastError;
+    throw new UnauthorizedException('Invalid authentication guard');
+  }
+
+  private async handleAndCondition(
+    guards: CanActivate[],
+    context: ExecutionContext,
+  ) {
+    for (const guard of guards) {
+      try {
+        if (!(await guard.canActivate(context)))
+          throw new UnauthorizedException();
+      } catch (error) {
+        if (error instanceof HttpException) throw error;
+        throw new UnauthorizedException();
+      }
+    }
+    return true;
   }
 }

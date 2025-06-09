@@ -22,11 +22,16 @@ import {
   GetRolesResDTO,
   UpdateRoleBodyDTO,
 } from 'src/routes/role/role.dto';
+import { Auth } from 'src/shared/decorators/auth.decorator';
+import { AuthType, ConditionGuard } from 'src/shared/constants/auth.constants';
+import { AuthenticationGuard } from 'src/shared/guards/authentication.guard';
 @Controller('role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
   @Get()
   @ZodSerializerDto(GetRolesResDTO)
+  @UseGuards(AccessTokenGuard)
+  @UseGuards(AuthenticationGuard)
   async list(@Query() query: GetRolesQueryDTO) {
     return this.roleService.list({
       page: query.page,
@@ -35,6 +40,9 @@ export class RoleController {
   }
   @Get(':roleId')
   @ZodSerializerDto(GetRoleDetailResDTO)
+  @UseGuards(AccessTokenGuard)
+  @UseGuards(AuthenticationGuard)
+  @Auth([AuthType.Bearer, AuthType.ApiKey], { condition: ConditionGuard.Or })
   findById(@Param() params: GetRoleParamsDTO) {
     return this.roleService.findById(params.roleId);
   }
