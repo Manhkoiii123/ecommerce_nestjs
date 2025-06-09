@@ -5,7 +5,7 @@ import { TokenService } from './services/token.service';
 import { JwtModule } from '@nestjs/jwt';
 import { AccessTokenGuard } from 'src/shared/guards/accessToken.guard';
 import { ApiKeyGuard } from 'src/shared/guards/apiKey.guard';
-import { SharedUserRepository } from 'src/shared/repositories/shared-user..repo';
+import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo';
 import { EmailService } from 'src/shared/services/email.service';
 import { TwoFactorAuthService } from 'src/shared/services/2fa.service';
 const sharedServices = [

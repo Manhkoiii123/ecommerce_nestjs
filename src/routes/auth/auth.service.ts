@@ -21,7 +21,7 @@ import {
   isNotFoundPrismaError,
   isUniqueConstraintError,
 } from 'src/shared/helpers';
-import { SharedUserRepository } from 'src/shared/repositories/shared-user..repo';
+import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo';
 import { HashingService } from 'src/shared/services/hashing.service';
 import { TokenService } from 'src/shared/services/token.service';
 import ms from 'ms';
