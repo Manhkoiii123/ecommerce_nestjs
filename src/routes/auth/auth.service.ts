@@ -15,7 +15,6 @@ import {
   SendOtpBodyType,
 } from 'src/routes/auth/auth.model';
 import { AuthRepository } from 'src/routes/auth/auth.repo';
-import { RoleService } from 'src/routes/auth/role.service';
 import {
   generateOTP,
   isNotFoundPrismaError,
@@ -48,11 +47,12 @@ import {
   TOTPNotEnabledException,
 } from 'src/routes/auth/error.model';
 import { TwoFactorAuthService } from 'src/shared/services/2fa.service';
+import { ShareRoleRepo } from 'src/shared/repositories/share-role.repo';
 @Injectable()
 export class AuthService {
   constructor(
     private readonly hashingService: HashingService,
-    private readonly roleService: RoleService,
+    private readonly shareRoleRepo: ShareRoleRepo,
     private readonly authRepository: AuthRepository,
     private readonly sharedUserRepository: SharedUserRepository,
     private readonly emailService: EmailService,
@@ -93,7 +93,7 @@ export class AuthService {
         code: body.code,
         type: TypeOfVerificationCode.REGISTER,
       });
-      const clientRoleId = await this.roleService.getClientRoleId();
+      const clientRoleId = await this.shareRoleRepo.getClientRoleId();
       const hashedPassword = await this.hashingService.hash(body.password);
       const user = await this.authRepository.createUser({
         email: body.email,

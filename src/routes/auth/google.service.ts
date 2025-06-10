@@ -4,8 +4,8 @@ import { google } from 'googleapis';
 import { GoogleStateType } from 'src/routes/auth/auth.model';
 import { AuthRepository } from 'src/routes/auth/auth.repo';
 import { AuthService } from 'src/routes/auth/auth.service';
-import { RoleService } from 'src/routes/auth/role.service';
 import envConfig from 'src/shared/config';
+import { ShareRoleRepo } from 'src/shared/repositories/share-role.repo';
 import { HashingService } from 'src/shared/services/hashing.service';
 import { v4 as uuidv4 } from 'uuid';
 @Injectable()
@@ -14,7 +14,7 @@ export class GoogleService {
   constructor(
     private readonly authRepository: AuthRepository,
     private readonly hashingService: HashingService,
-    private readonly roleService: RoleService,
+    private readonly shareRoleRepo: ShareRoleRepo,
     private readonly authService: AuthService,
   ) {
     this.oauth2Client = new google.auth.OAuth2(
@@ -73,7 +73,7 @@ export class GoogleService {
       // xác thực otp bước này
       if (!user) {
         // nguời mới => dnadwg kí
-        const clientRoleId = await this.roleService.getClientRoleId();
+        const clientRoleId = await this.shareRoleRepo.getClientRoleId();
         const uuid = uuidv4();
         const hashedPassword = await this.hashingService.hash(uuid);
         user = await this.authRepository.createUserIncludeRole({
