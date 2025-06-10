@@ -13,7 +13,7 @@ type UserIncludeRolePermissionsType = UserType & {
 export class SharedUserRepository {
   constructor(private readonly prismaService: PrismaService) {}
   findUnique(uniqueObject: WhereUniqueUserType): Promise<UserType | null> {
-    return this.prismaService.user.findUnique({
+    return this.prismaService.user.findFirst({
       where: uniqueObject,
     });
   }
@@ -21,7 +21,7 @@ export class SharedUserRepository {
   findUniqueIncludeRolePermissions(
     uniqueObject: WhereUniqueUserType,
   ): Promise<UserIncludeRolePermissionsType | null> {
-    return this.prismaService.user.findUnique({
+    return this.prismaService.user.findFirst({
       where: uniqueObject,
       include: {
         role: {
@@ -36,10 +36,7 @@ export class SharedUserRepository {
       },
     });
   }
-  update(
-    where: WhereUniqueUserType,
-    data: Partial<UserType>,
-  ): Promise<UserType> {
+  update(where: { id: number }, data: Partial<UserType>): Promise<UserType> {
     return this.prismaService.user.update({ where, data });
   }
 }

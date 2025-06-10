@@ -21,3 +21,12 @@ export function isNotFoundPrismaError(
 export const generateOTP = () => {
   return randomInt(100000, 1000000).toString();
 };
+
+export function isForekeyConstraintPrismaError(
+  error: any,
+): error is Prisma.PrismaClientKnownRequestError {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === 'P2003'
+  );
+}

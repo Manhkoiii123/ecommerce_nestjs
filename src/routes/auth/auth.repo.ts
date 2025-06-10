@@ -91,8 +91,11 @@ export class AuthRepository {
   async findUniqueUserIncludeRole(
     uniqueObject: { email: string } | { id: number },
   ): Promise<(UserType & { role: RoleType }) | null> {
-    return this.prismaService.user.findUnique({
-      where: uniqueObject,
+    return this.prismaService.user.findFirst({
+      where: {
+        ...uniqueObject,
+        deletedAt: null,
+      },
       include: { role: true },
     });
   }
@@ -119,10 +122,16 @@ export class AuthRepository {
   }
 
   async updateUser(
-    where: { id: number } | { email: string },
+    where: { id: number },
     data: Partial<Omit<UserType, 'id' | 'roleId'>>,
   ): Promise<UserType> {
-    return this.prismaService.user.update({ where, data });
+    return this.prismaService.user.update({
+      where: {
+        ...where,
+        deletedAt: null,
+      },
+      data,
+    });
   }
   deleteVerificationCode(
     // cái unique chỉ được dùng khi bên schema có đánh dấu nó là unique

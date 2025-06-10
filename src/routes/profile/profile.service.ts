@@ -35,7 +35,7 @@ export class ProfileService {
   }) {
     try {
       return await this.sharedUserRepository.update(
-        { id: userId, deletedAt: null },
+        { id: userId },
         {
           ...body,
           updatedById: userId,
@@ -68,7 +68,7 @@ export class ProfileService {
       if (!isPasswordValid) throw InvalidPasswordException;
       const hashedPassword = await this.hashingService.hash(newPassword);
       await this.sharedUserRepository.update(
-        { id: userId, deletedAt: null },
+        { id: userId },
         { password: hashedPassword, updatedById: userId },
       );
       return {
