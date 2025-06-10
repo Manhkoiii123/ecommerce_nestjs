@@ -12,6 +12,7 @@ import { PermissionModule } from './routes/permission/permission.module';
 import { RoleModule } from './routes/role/role.module';
 import { ProfileModule } from 'src/routes/profile/profile.module';
 import { UserModule } from 'src/routes/user/user.module';
+import { MediaModule } from 'src/routes/media/media.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UserModule } from 'src/routes/user/user.module';
     RoleModule,
     ProfileModule,
     UserModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [
