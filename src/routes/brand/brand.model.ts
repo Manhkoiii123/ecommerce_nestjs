@@ -1,3 +1,4 @@
+import { BrandTranslationSchema } from 'src/routes/brand/brand-translation/brand-translation.model';
 import { z } from 'zod';
 export const BrandSchema = z.object({
   id: z.number(),
@@ -11,7 +12,7 @@ export const BrandSchema = z.object({
 });
 
 const BrandIncludeTranslationSchema = BrandSchema.extend({
-  //   brandTranslation: z.array(BrandTranslationSchema),
+  brandTranslations: z.array(BrandTranslationSchema),
 });
 
 export const GetBrandsResSchema = z.object({
