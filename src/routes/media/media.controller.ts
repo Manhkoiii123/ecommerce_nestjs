@@ -8,6 +8,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import envConfig from 'src/shared/config';
 
 @Controller('media')
 export class MediaController {
@@ -40,9 +41,8 @@ export class MediaController {
     )
     files: Array<Express.Multer.File>,
   ) {
-    return {
-      message: 'Upload thành công',
-      count: files.length,
-    };
+    return files.map((file) => ({
+      url: `${envConfig.PREFIX_STATIC_ENDPOINT}/${file.filename}`,
+    }));
   }
 }
