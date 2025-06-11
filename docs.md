@@ -189,3 +189,11 @@ Ví dụ mình muốn thêm Partial Unique Indexes vào một table trên Postgr
 3. Kiểm tra danh sách permission của role đó có quyền truy cập endpoint đó không
 
 ### Mình có thể thêm sau bước 2 là: Dựa vào `deviceId` query `Device` để kiểm tra xem thiết bị đó có `isActive=true` không từ đó quyết định cho phép hoặc không cho phép request đi qua. Lúc này chúng ta có thể làm được chức năng đăng xuất thiết bị ngay lập tức. Nhưng điểm dở là phải tốn 1 query (hoặc thêm 1 vài lần join table), điều này làm tăng latency và tăng gánh nặng lên database, nhất là khi có nhiều người request.
+
+# upload ảnh lên s3
+
+bật permission cho nó => tra gg `setting permission for website access s3`
+
+`https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteAccessPermissionsReqd.html`
+
+sửa cái permission và cái policy theo cái docs
