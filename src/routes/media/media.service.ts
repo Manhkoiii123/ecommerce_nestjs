@@ -29,7 +29,9 @@ export class MediaService {
         });
       }),
     );
-    return res;
+    return {
+      data: res,
+    };
   }
 
   async getPresignUrl(body: { filename: string }) {

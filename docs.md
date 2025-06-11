@@ -216,20 +216,20 @@ docs `https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSigned
 => sau khi tạo xong api `http://localhost:3000/media/images/upload/presigned-url` => trả ra 1 cái `presignUrl` => call tiếp 1 cái api `presignUrl`(no auth) chính là url của api và phương thức put
 => body => binary => gửi ảnh lên => upload thnahf công
 
-
-cái presignUrl 
+cái presignUrl
 `https://manhshop.s3.ap-southeast-1.amazonaws.com/05fb5635-49e5-49b9-8871-bee8ea8f1597.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAQH2U23K3L76DXCUU%2F20250611%2Fap-southeast-1%2Fs3%2Faws4_request&X-Amz-Date=20250611T085539Z&X-Amz-Expires=3600&X-Amz-Signature=fdb76b2231114d02ab4c3a154d67ba31704ea0a1240956968244e90059c82947&X-Amz-SignedHeaders=host&x-amz-checksum-crc32=AAAAAA%3D%3D&x-amz-sdk-checksum-algorithm=CRC32&x-id=PutObject`
 
 => link ảnh sẽ là `https://manhshop.s3.ap-southeast-1.amazonaws.com/05fb5635-49e5-49b9-8871-bee8ea8f1597.jpg`
 
 frontend
+
 ```ts
 const handleUpload = async () => {
   if (!file) return;
 
   try {
     const response = await http.post('/media/images/upload/presigned-url', {
-      filename: file.name
+      filename: file.name,
     });
 
     const { url, presignedUrl } = response.data;
@@ -239,12 +239,17 @@ const handleUpload = async () => {
 
     await axios.put(presignedUrl, file, {
       headers: {
-        'Content-Type': file.type
-      }
+        'Content-Type': file.type,
+      },
     });
-
   } catch (error) {
     console.error('Upload failed:', error);
   }
 };
 ```
+
+# Validate file khi dùng presign url
+
+c1 dùng lambda => phức tạp
+
+c2 validate ở fe client truyền lên cái filesize
