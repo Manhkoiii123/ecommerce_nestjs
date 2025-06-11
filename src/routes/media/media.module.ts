@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { existsSync, mkdirSync } from 'fs';
 import multer from 'multer';
@@ -27,10 +27,11 @@ const storage = multer.diskStorage({
   providers: [],
   exports: [],
 })
-export class MediaModule {
-  constructor() {
+export class MediaModule implements OnModuleInit {
+  onModuleInit() {
     if (!existsSync(UPLOAD_DIR)) {
       mkdirSync(UPLOAD_DIR, { recursive: true });
+      console.log('📁 Created upload directory at:', UPLOAD_DIR);
     }
   }
 }

@@ -1,35 +1,48 @@
 import {
+  BadRequestException,
   Controller,
-  FileTypeValidator,
   MaxFileSizeValidator,
-  ParseFilePipe,
+  ParseFilePipeBuilder,
   Post,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('media')
 export class MediaController {
   @Post('images/upload')
   @UseInterceptors(
-    FileInterceptor('file', {
+    FilesInterceptor('files', 10, {
       limits: {
-        fileSize: 1024 * 1024 * 10, // ưu tiên lấy cái này
+        fileSize: 1024 * 1024 * 10,
+      },
+      fileFilter: (req, file, cb) => {
+        const allowedMimeTypes = ['image/png', 'image/jpeg', 'image/webp'];
+        if (allowedMimeTypes.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(
+            new BadRequestException(
+              `File type ${file.mimetype} not allowed. Allowed types: ${allowedMimeTypes.join(', ')}`,
+            ),
+            false,
+          );
+        }
       },
     }),
-  ) // key là file trên formData
+  )
   uploadFile(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 10 }),
-          new FileTypeValidator({ fileType: /(jpeg|jpg|png|webp)$/ }),
-        ],
-      }),
+    @UploadedFiles(
+      new ParseFilePipeBuilder()
+        .addValidator(new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }))
+        .build(),
     )
-    file: Express.Multer.File,
+    files: Array<Express.Multer.File>,
   ) {
-    console.log(file);
+    return {
+      message: 'Upload thành công',
+      count: files.length,
+    };
   }
 }
