@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
   MaxFileSizeValidator,
@@ -69,5 +70,11 @@ export class MediaController {
         res.status(404).json({ message: 'File not found', statusCode: 404 });
       }
     });
+  }
+
+  @Post('images/upload/presigned-url')
+  @IsPublic()
+  async createPresignUrl(@Body() body: { filename: string }) {
+    return await this.mediaService.getPresignUrl(body);
   }
 }
