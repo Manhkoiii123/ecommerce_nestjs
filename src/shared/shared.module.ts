@@ -8,6 +8,7 @@ import { ApiKeyGuard } from 'src/shared/guards/apiKey.guard';
 import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo';
 import { EmailService } from 'src/shared/services/email.service';
 import { TwoFactorAuthService } from 'src/shared/services/2fa.service';
+import { S3Service } from 'src/shared/services/s3.service';
 const sharedServices = [
   PrismaService,
   HashingService,
@@ -17,6 +18,7 @@ const sharedServices = [
   SharedUserRepository,
   EmailService,
   TwoFactorAuthService,
+  S3Service,
 ];
 @Global()
 @Module({
