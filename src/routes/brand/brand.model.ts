@@ -26,6 +26,7 @@ export const GetBrandsQuerySchema = z
   .object({
     page: z.coerce.number().int().positive().default(1), // coerce chuyển từ str sang number
     limit: z.coerce.number().int().positive().default(10),
+    lang: z.string().optional(),
   })
   .strict();
 export const GetBrandParamsSchema = z

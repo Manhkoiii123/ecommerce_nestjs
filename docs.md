@@ -253,3 +253,9 @@ const handleUpload = async () => {
 c1 dùng lambda => phức tạp
 
 c2 validate ở fe client truyền lên cái filesize
+
+# đa ngôn ngữ
+
+cleint đính kèm lang ở headder hoặc params > lấy => truyền vào repo => done
+
+thư viện i18n có cho nest

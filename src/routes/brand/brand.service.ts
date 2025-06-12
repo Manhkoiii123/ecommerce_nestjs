@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { I18nContext } from 'nestjs-i18n';
 import {
   CreateBrandBodyType,
   GetBrandsQueryType,
@@ -10,11 +11,17 @@ import { isNotFoundPrismaError } from 'src/shared/helpers';
 @Injectable()
 export class BrandService {
   constructor(private readonly brandRepo: BrandRepo) {}
-  async list(pagination: GetBrandsQueryType, languageId?: string) {
-    return this.brandRepo.list(pagination, languageId);
+  async list(pagination: GetBrandsQueryType) {
+    return this.brandRepo.list(
+      pagination,
+      I18nContext.current()?.lang as string,
+    );
   }
-  async findById(id: number, languageId?: string) {
-    const brand = await this.brandRepo.findById(id, languageId);
+  async findById(id: number) {
+    const brand = await this.brandRepo.findById(
+      id,
+      I18nContext.current()?.lang as string,
+    );
     if (!brand) throw NotFoundRecordException;
     return brand;
   }

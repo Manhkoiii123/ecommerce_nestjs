@@ -15,6 +15,8 @@ import { UserModule } from 'src/routes/user/user.module';
 import { MediaModule } from 'src/routes/media/media.module';
 import { BrandModule } from 'src/routes/brand/brand.module';
 import { BrandTranslationModule } from 'src/routes/brand/brand-translation/brand-translation.module';
+import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
+import path from 'path';
 
 @Module({
   imports: [
@@ -28,6 +30,18 @@ import { BrandTranslationModule } from 'src/routes/brand/brand-translation/brand
     MediaModule,
     BrandModule,
     BrandTranslationModule,
+    I18nModule.forRoot({
+      fallbackLanguage: 'en',
+      loaderOptions: {
+        path: path.resolve('src/i18n/'),
+        watch: true,
+      },
+      typesOutputPath: path.resolve('src/generated/i18n.generated.ts'),
+      resolvers: [
+        { use: QueryResolver, options: ['lang'] }, // query param là lang
+        AcceptLanguageResolver, // đại diện cho Accept-language ở header khi truyền lên
+      ],
+    }),
   ],
   controllers: [AppController],
   providers: [
