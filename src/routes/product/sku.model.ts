@@ -5,7 +5,7 @@ export const SKUSchema = z.object({
   productId: z.number(),
   price: z.number().positive(),
   stock: z.number().positive(),
-  images: z.array(z.string()),
+  image: z.string(),
   createdById: z.number().nullable(),
   updatedById: z.number().nullable(),
   deletedAt: z.date().nullable(),
@@ -17,7 +17,7 @@ export const UpsertSKUBodySchema = SKUSchema.pick({
   value: true,
   price: true,
   stock: true,
-  images: true,
+  image: true,
 });
 
 export type UpsertSKUBodyType = z.infer<typeof UpsertSKUBodySchema>;

@@ -82,7 +82,7 @@ export const GetProductsQuerySchema = z.object({
 export const GetProductsResSchema = z.object({
   data: z.array(
     ProductSchema.extend({
-      processroductTranslations: z.array(ProductTranslationSchema),
+      productTranslations: z.array(ProductTranslationSchema),
     }),
   ),
   totalItems: z.number(),
