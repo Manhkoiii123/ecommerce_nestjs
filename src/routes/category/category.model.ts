@@ -1,3 +1,4 @@
+import { CategoryTranslationSchema } from 'src/routes/category/category-translation/category-translation.model';
 import { z } from 'zod';
 export const CategorySchema = z.object({
   id: z.number(),
@@ -12,7 +13,7 @@ export const CategorySchema = z.object({
 });
 
 const CategoryIncludeTranslationSchema = CategorySchema.extend({
-  //   categoryTranslations: z.array(CategoryTranslationSchema),
+  categoryTranslations: z.array(CategoryTranslationSchema),
 });
 
 export const GetAllCategoriesResSchema = z.object({
