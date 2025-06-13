@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import {
+  CreateProductBodyType,
   GetProductDetailResType,
   GetProductsQueryType,
   GetProductsResType,
   ProductType,
+  UpdateProductBodyType,
 } from 'src/routes/product/product.model';
 import { ALL_LANGUAGE_CODE } from 'src/shared/constants/other.constant';
 import { PrismaService } from 'src/shared/services/prisma.service';
@@ -132,5 +135,166 @@ export class ProductRepository {
       ]);
       return product;
     }
+  }
+
+  async create({
+    createdById,
+    data,
+  }: {
+    createdById: number;
+    data: CreateProductBodyType;
+  }): Promise<GetProductDetailResType> {
+    const { skus, categories, ...productData } = data;
+    return this.prismaService.product.create({
+      data: {
+        ...productData,
+        createdById,
+        skus: {
+          createMany: {
+            data: skus,
+          },
+        },
+        categories: {
+          connect: categories.map((id) => ({ id })),
+        },
+      },
+      include: {
+        productTranslations: {
+          where: {
+            deletedAt: null,
+          },
+        },
+        skus: {
+          where: {
+            deletedAt: null,
+          },
+        },
+        categories: {
+          where: {
+            deletedAt: null,
+          },
+          include: {
+            categoryTranslations: {
+              where: {
+                deletedAt: null,
+              },
+            },
+          },
+        },
+        brand: {
+          include: {
+            brandTranslations: {
+              where: {
+                deletedAt: null,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  // UPDATE PRODUCT
+  // sku đã tồn tại trong db nhưng ko có trong data(ng gửi lên) thì sẽ bị xóa
+  // sku đã tồn tại trong db nhưng có trong data(ng gửi lên) thì sẽ bị cập nhật
+  // sku chua tạo trong db thì sẽ bị tạo
+
+  async update({
+    id,
+    updatedById,
+    data,
+  }: {
+    id: number;
+    updatedById: number;
+    data: UpdateProductBodyType;
+  }): Promise<ProductType> {
+    const { skus: dataSkus, categories, ...productData } = data;
+    // lấy sku đã tồn tại trong db
+    const existingSkus = await this.prismaService.sKU.findMany({
+      where: {
+        productId: id,
+        deletedAt: null,
+      },
+    });
+    // tìm các sku cần xóa (có trong db nhưng ko có trong data)
+    const skusToDelete = existingSkus.filter((sku) =>
+      dataSkus.every((dataSku) => dataSku.value !== sku.value),
+    );
+    const skuIdsToDelete = skusToDelete.map((sku) => sku.id);
+    // map id vào data payload
+    const skuWithId = dataSkus.map((dataSku) => {
+      const existingSku = existingSkus.find(
+        (sku) => sku.value === dataSku.value,
+      );
+      return {
+        ...dataSku,
+        id: existingSku ? existingSku.id : null,
+      };
+    });
+
+    // tìm sku để update
+    const skusToUpdate = skuWithId.filter((sku) => sku.id !== null);
+
+    const skusToCreate = skuWithId
+      .filter((sku) => sku.id === null)
+      .map((sku) => {
+        // tạo mới thì bỏ cái id đi
+        const { id: skuId, ...rest } = sku;
+        return {
+          ...rest,
+          productId: id,
+          createdById: updatedById,
+        };
+      });
+
+    // dùng transaction để khi 1 cái lỗi thì nó sẽ dừng lại luôn
+    const [product] = await this.prismaService.$transaction([
+      // cập nhật product
+      this.prismaService.product.update({
+        where: {
+          id,
+          deletedAt: null,
+        },
+        data: {
+          ...productData,
+          updatedById,
+          categories: {
+            connect: categories.map((id) => ({ id })),
+          },
+        },
+      }),
+      // xóa sku ko có trong gửi lên
+      this.prismaService.sKU.updateMany({
+        where: {
+          id: {
+            in: skuIdsToDelete,
+          },
+        },
+        data: {
+          deletedAt: new Date(),
+        },
+      }),
+      // update sku
+      ...skusToUpdate.map((sku) => {
+        return this.prismaService.sKU.update({
+          where: {
+            id: sku.id as number,
+          },
+          data: {
+            value: sku.value,
+            price: sku.price,
+            stock: sku.stock,
+            image: sku.image,
+            updatedById,
+          },
+        });
+      }),
+      // thêm mới
+      this.prismaService.sKU.createMany({
+        data: skusToCreate,
+      }),
+    ]);
+
+    return product;
   }
 }
