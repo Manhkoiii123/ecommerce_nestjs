@@ -34,7 +34,7 @@ export const VariantsSchema = z
       const variant = variants[i];
       const isDifferent =
         variants.findIndex((v) => v.value === variant.value) !== i;
-      if (!isDifferent) {
+      if (isDifferent) {
         return ctx.addIssue({
           code: 'custom',
           message: `Variant ${variant.value} value must be unique`,
@@ -74,10 +74,10 @@ export const GetProductsQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1), // coerce chuyển từ str sang number
   limit: z.coerce.number().int().positive().default(10),
   name: z.string().optional(),
-  brandIds: z.array(z.coerce.number().int().positive().optional()),
-  categories: z.array(z.coerce.number().int().positive().optional()),
-  minPrice: z.coerce.number().positive().optional(),
-  maxPrice: z.coerce.number().positive().optional(),
+  brandIds: z.array(z.coerce.number().int().positive().optional()).optional(),
+  categories: z.array(z.coerce.number().int().positive().optional()).optional(),
+  minPrice: z.coerce.number().positive().optional().optional(),
+  maxPrice: z.coerce.number().positive().optional().optional(),
 });
 export const GetProductsResSchema = z.object({
   data: z.array(
