@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import {
   CreateProductBodyType,
   GetProductDetailResType,
@@ -39,11 +40,23 @@ export class ProductRepository {
   }): Promise<GetProductsResType> {
     const skip = (page - 1) * limit;
     const take = limit;
-    const where = {
+    let where: Prisma.ProductWhereInput = {
       deletedAt: null,
-      createdbyId: createdbyId ? createdbyId : undefined,
-      publishedAt: isPublic ? { lte: new Date(), not: null } : undefined,
+      createdById: createdbyId ? createdbyId : undefined,
     };
+    if (isPublic === true) {
+      where.publishedAt = {
+        lte: new Date(),
+        not: null,
+      };
+    } else if (isPublic === false) {
+      where = {
+        OR: [
+          { ...where, publishedAt: null },
+          { ...where, publishedAt: { gt: new Date() } },
+        ],
+      };
+    }
     const [totalItems, data] = await Promise.all([
       this.prismaService.product.count({
         where: {
@@ -92,12 +105,23 @@ export class ProductRepository {
     languageId: string;
     isPublic?: boolean;
   }): Promise<GetProductDetailResType | null> {
+    let where: Prisma.ProductWhereUniqueInput = {
+      id: productId,
+      deletedAt: null,
+    };
+    if (isPublic === true) {
+      where.publishedAt = {
+        lte: new Date(),
+        not: null,
+      };
+    } else if (isPublic === false) {
+      where = {
+        ...where,
+        OR: [{ publishedAt: null }, { publishedAt: { gt: new Date() } }],
+      };
+    }
     return this.prismaService.product.findUnique({
-      where: {
-        id: productId,
-        deletedAt: null,
-        publishedAt: isPublic ? { lte: new Date(), not: null } : undefined,
-      },
+      where,
       include: {
         productTranslations: {
           where:
