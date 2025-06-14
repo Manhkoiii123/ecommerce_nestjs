@@ -32,5 +32,3 @@ export class ProductService {
     return product;
   }
 }
-
-//6 07
