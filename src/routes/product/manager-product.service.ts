@@ -45,6 +45,11 @@ export class ManageProductService {
       languageId: I18nContext.current()?.lang as string,
       createdbyId: props.query.createdById,
       isPublic: props.query.isPublic,
+      name: props.query.name,
+      brandIds: props.query.brandIds,
+      categories: props.query.categories,
+      minPrice: props.query.minPrice,
+      maxPrice: props.query.maxPrice,
     });
     return data;
   }
