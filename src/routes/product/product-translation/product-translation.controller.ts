@@ -20,7 +20,7 @@ import { ActiveUser } from 'src/shared/decorators/active-user.decorator';
 import { MessageResDto } from 'src/shared/dtos/response.dto';
 import { AccessTokenGuard } from 'src/shared/guards/accessToken.guard';
 
-@Controller('product-translations')
+@Controller('product-translation')
 export class ProductTranslationController {
   constructor(
     private readonly productTranslationService: ProductTranslationService,

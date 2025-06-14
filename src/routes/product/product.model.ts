@@ -70,6 +70,7 @@ export const ProductSchema = z.object({
   updatedAt: z.date(),
 });
 
+// client get sản phẩm (chưa đăng nhập)
 export const GetProductsQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1), // coerce chuyển từ str sang number
   limit: z.coerce.number().int().positive().default(10),
@@ -78,6 +79,13 @@ export const GetProductsQuerySchema = z.object({
   categories: z.array(z.coerce.number().int().positive().optional()).optional(),
   minPrice: z.coerce.number().positive().optional().optional(),
   maxPrice: z.coerce.number().positive().optional().optional(),
+  createdById: z.coerce.number().int().positive().optional(),
+});
+// admin và seller
+
+export const GetManagerProductsQuerySchema = GetProductsQuerySchema.extend({
+  isPublic: z.coerce.boolean().optional(),
+  createdById: z.coerce.number().int().positive(), // bắt buộc
 });
 export const GetProductsResSchema = z.object({
   data: z.array(
@@ -150,6 +158,9 @@ export type ProductType = z.infer<typeof ProductSchema>;
 export type VariantsType = z.infer<typeof VariantsSchema>;
 export type GetProductsResType = z.infer<typeof GetProductsResSchema>;
 export type GetProductsQueryType = z.infer<typeof GetProductsQuerySchema>;
+export type GetManagerProductsQueryType = z.infer<
+  typeof GetManagerProductsQuerySchema
+>;
 export type GetProductParamsType = z.infer<typeof GetProductParamsSchema>;
 export type GetProductDetailResType = z.infer<typeof GetProductDetailResSchema>;
 export type CreateProductBodyType = z.infer<typeof CreateProductBodySchema>;
