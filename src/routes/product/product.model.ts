@@ -2,6 +2,7 @@ import { BrandIncludeTranslationSchema } from 'src/routes/brand/brand.model';
 import { CategoryIncludeTranslationSchema } from 'src/routes/category/category.model';
 import { ProductTranslationSchema } from 'src/routes/product/product-translation/product-translation.model';
 import { SKUSchema, UpsertSKUBodySchema } from 'src/routes/product/sku.model';
+import { OrderBy, SortBy } from 'src/shared/constants/other.constant';
 import { z } from 'zod';
 export function generateSkus(variants: VariantsType) {
   function getComninations(arrays: string[][]): string[] {
@@ -94,6 +95,10 @@ export const GetProductsQuerySchema = z.object({
   minPrice: z.coerce.number().positive().optional().optional(),
   maxPrice: z.coerce.number().positive().optional().optional(),
   createdById: z.coerce.number().int().positive().optional(),
+  orderBy: z.enum([OrderBy.Asc, OrderBy.Desc]).default(OrderBy.Desc),
+  sortBy: z
+    .enum([SortBy.CreatedAt, SortBy.Price, SortBy.Sale])
+    .default(SortBy.CreatedAt),
 });
 // admin và seller
 

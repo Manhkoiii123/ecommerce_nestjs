@@ -19,6 +19,8 @@ export class ProductService {
       minPrice: props.query.minPrice,
       maxPrice: props.query.maxPrice,
       createdbyId: props.query.createdById,
+      orderBy: props.query.orderBy,
+      sortBy: props.query.sortBy,
     });
     return data;
   }
