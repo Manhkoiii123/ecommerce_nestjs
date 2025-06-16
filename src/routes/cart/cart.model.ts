@@ -18,7 +18,7 @@ export const GetCartItemParamsSchema = z.object({
 export const CartItemDetailSchema = CartItemSchema.extend({
   sku: SKUSchema.extend({
     product: ProductSchema.extend({
-      productTranslation: z.array(ProductTranslationSchema),
+      productTranslations: z.array(ProductTranslationSchema),
     }),
   }),
 });

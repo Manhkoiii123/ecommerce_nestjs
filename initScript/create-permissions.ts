@@ -9,7 +9,9 @@ const SellerModule = [
   'MEDIA',
   'PRODUCT-TRANSLATION',
   'PROFILE',
+  'CART',
 ];
+const ClientModule = ['AUTH', 'MEDIA', 'CART', 'PROFILE'];
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   await app.listen(3000);
@@ -102,9 +104,15 @@ async function bootstrap() {
       return SellerModule.includes(item.module.toUpperCase());
     })
     .map((item) => ({ id: item.id }));
+  const clientPermissionIds = updatedPermissionsInDB
+    .filter((item) => {
+      return ClientModule.includes(item.module.toUpperCase());
+    })
+    .map((item) => ({ id: item.id }));
 
   await updateRole(adminRoleIds, RoleName.Admin);
   await updateRole(sellerPermissionIds, RoleName.Seller);
+  await updateRole(clientPermissionIds, RoleName.Client);
   process.exit(0);
 }
 const updateRole = async (
