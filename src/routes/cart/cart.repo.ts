@@ -6,6 +6,7 @@ import {
 } from 'src/routes/cart/cart.error';
 import {
   AddToCartBodyType,
+  CartItemDetailType,
   CartItemType,
   DeleteCartBodyType,
   GetCartResType,
@@ -52,18 +53,19 @@ export class CartRepository {
     limit: number;
     page: number;
   }): Promise<GetCartResType> {
-    const skip = (page - 1) * limit;
-    const take = limit;
-    const [totalItems, data] = await Promise.all([
-      this.prismaService.cartItem.count({
-        where: {
-          userId,
-        },
-      }),
-
+    const [data] = await Promise.all([
       this.prismaService.cartItem.findMany({
         where: {
           userId,
+          sku: {
+            product: {
+              deletedAt: null,
+              publishedAt: {
+                lte: new Date(),
+                not: null,
+              },
+            },
+          },
         },
         include: {
           sku: {
@@ -76,24 +78,41 @@ export class CartRepository {
                         ? { deletedAt: null }
                         : { languageId, deletedAt: null },
                   },
+                  createdBy: true,
                 },
               },
             },
           },
         },
-        skip,
-        take,
         orderBy: {
-          createdAt: 'desc',
+          updatedAt: 'desc',
         },
       }),
     ]);
+    const groupMap = new Map<number, CartItemDetailType>();
+    for (const item of data) {
+      const shopId = item.sku.product.createdById;
+      if (shopId) {
+        if (!groupMap.has(shopId)) {
+          groupMap.set(shopId, {
+            shop: item.sku.product.createdBy,
+            cartItems: [],
+          });
+        }
+        groupMap.get(shopId)?.cartItems.push(item);
+      }
+    }
+    const sortedGroup = Array.from(groupMap.values());
+    const skip = (page - 1) * limit;
+    const take = limit;
+    const totalGroup = sortedGroup.length;
+    const pagedGroups = sortedGroup.slice(skip, skip + take);
     return {
-      data,
-      totalItems,
+      data: pagedGroups,
+      totalItems: totalGroup,
       limit,
       page,
-      totalPages: Math.ceil(totalItems / limit),
+      totalPages: Math.ceil(totalGroup / limit),
     };
   }
   async create(userId: number, body: AddToCartBodyType): Promise<CartItemType> {

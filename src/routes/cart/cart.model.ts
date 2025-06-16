@@ -1,6 +1,7 @@
 import { ProductTranslationSchema } from 'src/routes/product/product-translation/product-translation.model';
 import { ProductSchema } from 'src/routes/product/product.model';
 import { SKUSchema } from 'src/routes/product/sku.model';
+import { UserSchema } from 'src/shared/models/shared-user.model';
 import { z } from 'zod';
 export const CartItemSchema = z.object({
   id: z.number(),
@@ -15,12 +16,21 @@ export const GetCartItemParamsSchema = z.object({
   cartItemId: z.coerce.number().int().positive(),
 });
 
-export const CartItemDetailSchema = CartItemSchema.extend({
-  sku: SKUSchema.extend({
-    product: ProductSchema.extend({
-      productTranslations: z.array(ProductTranslationSchema),
+export const CartItemDetailSchema = z.object({
+  shop: UserSchema.pick({
+    name: true,
+    id: true,
+    avatar: true,
+  }).nullable(),
+  cartItems: z.array(
+    CartItemSchema.extend({
+      sku: SKUSchema.extend({
+        product: ProductSchema.extend({
+          productTranslations: z.array(ProductTranslationSchema),
+        }),
+      }),
     }),
-  }),
+  ),
 });
 
 export const GetCartResSchema = z.object({
