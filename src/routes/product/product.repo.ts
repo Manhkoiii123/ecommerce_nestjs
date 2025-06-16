@@ -283,7 +283,7 @@ export class ProductRepository {
         createdById,
         skus: {
           createMany: {
-            data: skus,
+            data: skus.map((sku) => ({ ...sku, createdById })),
           },
         },
         categories: {

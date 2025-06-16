@@ -259,3 +259,15 @@ c2 validate ở fe client truyền lên cái filesize
 cleint đính kèm lang ở headder hoặc params > lấy => truyền vào repo => done
 
 thư viện i18n có cho nest
+
+# câu lệnh update
+
+full sku createdById bằng createById của product
+
+```ts
+UPDATE "SKU"
+SET "createdById" = "Product"."createdById"
+FROM "Product"
+WHERE "SKU"."productId" = "Product"."id"
+  AND "SKU"."createdById" IS NULL;
+```
