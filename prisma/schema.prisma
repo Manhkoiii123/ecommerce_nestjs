@@ -72,6 +72,7 @@ model User {
   userTranslations            UserTranslation[]     @relation("User")
   sendMessages                Message[]             @relation("FromUser")
   receivedMessages            Message[]             @relation("ToUser")
+  soldOrders Order[] @relation("Shop")
 
   createdById  Int?
   createdBy    User?  @relation("CreatorUsers", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
@@ -202,6 +203,7 @@ model Product {
   skus                SKU[]
   reviews             Review[]
   productTranslations ProductTranslation[]
+  productSKUSnapshots ProductSKUSnapshot[]
   orders Order[]
   createdById         Int
   createdBy           User               @relation("ProductCreatedBy", fields: [createdById], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -346,13 +348,18 @@ model CartItem {
 model ProductSKUSnapshot {
   id          Int      @id @default(autoincrement())
   productName String   @db.VarChar(500)
-  price       Float
-  images      String[]
+  skuPrice       Float
+  image     String
   skuValue    String   @db.VarChar(500)
   skuId       Int?
   sku         SKU?     @relation(fields: [skuId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   orderId     Int?
   order       Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  quantity Int
+  productId Int?
+  product       Product?   @relation(fields: [productId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  /// [ProductTranslations]
+  productTranslation Json
   createdAt   DateTime @default(now())
 }
 
@@ -363,6 +370,10 @@ model Order {
   status      OrderStatus
   items       ProductSKUSnapshot[]
   products Product[]
+  /// [Receiver]
+  receiver Json
+  shopId Int?
+  shop   User?                @relation("Shop", fields: [shopId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   createdById Int?
   createdBy   User?                @relation("OrderCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
   updatedById Int?
