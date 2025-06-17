@@ -11,7 +11,7 @@ const SellerModule = [
   'PROFILE',
   'CART',
 ];
-const ClientModule = ['AUTH', 'MEDIA', 'CART', 'PROFILE'];
+const ClientModule = ['AUTH', 'MEDIA', 'CART', 'PROFILE', 'ORDERS'];
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   await app.listen(3000);
