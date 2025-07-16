@@ -20,12 +20,14 @@ import {
 import { OrderService } from 'src/routes/order/order.service';
 import { ActiveUser } from 'src/shared/decorators/active-user.decorator';
 import { AccessTokenGuard } from 'src/shared/guards/accessToken.guard';
+import { AuthenticationGuard } from 'src/shared/guards/authentication.guard';
 
 @Controller('orders')
 @UseGuards(AccessTokenGuard)
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
   @Get()
+  @UseGuards(AuthenticationGuard)
   @ZodSerializerDto(GetOrderListResDTO)
   getOrder(
     @ActiveUser('userId') userId: number,
@@ -34,6 +36,7 @@ export class OrderController {
     return this.orderService.list({ userId, ...query });
   }
   @Post()
+  @UseGuards(AuthenticationGuard)
   @ZodSerializerDto(CreateOrderResDTO)
   create(
     @ActiveUser('userId') userId: number,
@@ -44,7 +47,7 @@ export class OrderController {
 
   @Get(':orderId')
   @ZodSerializerDto(GetOrderDetailResDTO)
-  @UseGuards(ActiveUser('userId'))
+  @UseGuards(AuthenticationGuard)
   getDetail(
     @ActiveUser('userId') userId: number,
     @Param() param: GetOrderParamsDTO,
@@ -54,7 +57,7 @@ export class OrderController {
 
   @Put(':orderId/cancel')
   @ZodSerializerDto(CancelOrderResDTO)
-  @UseGuards(ActiveUser('userId'))
+  @UseGuards(AuthenticationGuard)
   cancel(
     @ActiveUser('userId') userId: number,
     @Param() param: GetOrderParamsDTO,
