@@ -23,6 +23,7 @@ import { ProductModule } from 'src/routes/product/product.module';
 import { ProductTranslationModule } from 'src/routes/product/product-translation/product-translation.module';
 import { CartModule } from 'src/routes/cart/cart.module';
 import { OrderModule } from 'src/routes/order/order.module';
+import { PaymentModule } from 'src/routes/payment/payment.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { OrderModule } from 'src/routes/order/order.module';
     ProductTranslationModule,
     CartModule,
     OrderModule,
+    PaymentModule,
     I18nModule.forRoot({
       fallbackLanguage: 'en',
       loaderOptions: {

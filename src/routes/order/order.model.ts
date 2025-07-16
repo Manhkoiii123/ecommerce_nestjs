@@ -19,6 +19,7 @@ export const OrderSchema = z.object({
     address: z.string(),
   }),
   shopId: z.number().nullable(),
+  paymentId: z.number(),
   createdById: z.number().nullable(),
   updatedById: z.number().nullable(),
   deletedById: z.number().nullable(),
@@ -101,6 +102,13 @@ export const GetOrderParamsSchema = z
     orderId: z.coerce.number().int().positive(),
   })
   .strict();
+
+export const OrderIncludeProductSKUSnapshotSchema = OrderSchema.extend({
+  items: z.array(ProductSKUSnapshotSchema),
+});
+export type OrderIncludeProductSKUSnapshotType = z.infer<
+  typeof OrderIncludeProductSKUSnapshotSchema
+>;
 export type GetOrderListResType = z.infer<typeof GetOrderListResSchema>;
 export type GetOrderListQueryType = z.infer<typeof GetOrderListQuerySchema>;
 export type GetOrderDetailResType = z.infer<typeof GetOrderDetailResSchema>;
